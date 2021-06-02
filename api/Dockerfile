@@ -1,5 +1,8 @@
 FROM huggingface/transformers-pytorch-gpu
 
+ARG GPT_MODEL
+ENV GPT_MODEL $GPT_MODEL
+
 WORKDIR /app
 
 COPY . .
@@ -13,4 +16,4 @@ RUN python3 download_model.py
 
 EXPOSE 8000
 
-CMD ["opyrator", "launch-ui", "app:generate_text", "--port", "8000"]
+CMD ["opyrator", "launch-api", "app:generate_text", "--port", "8000"]

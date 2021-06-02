@@ -14,20 +14,21 @@ class TextGenerationInput(BaseModel):
     )
     temperature: float = Field(
         1.0,
-	gt=0.0,
+	    gt=0.0,
+        le=1.0,
         multiple_of=0.001,
         description="The value used to module the next token probabilities.",
     )
     min_length: int = Field(
         50,
-	ge=0,
-	le=500,
+	    ge=0,
+	    le=1000,
         description="The minimum length of the sequence to be generated.",
     )
     max_length: int = Field(
         100,
-	ge=0,
-	le=500,
+	    ge=0,
+	    le=8000,
         description="The maximum length of the sequence to be generated.",
     )
     do_sample: bool = Field(

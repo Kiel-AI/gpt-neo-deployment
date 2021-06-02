@@ -13,7 +13,7 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-      - "--certificatesresolvers.myresolver.acme.email=email@example.com" # add your email-adress for https-certificate
+      - "--certificatesresolvers.myresolver.acme.email=${LE_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=acme.json"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
     ports:
@@ -22,30 +22,32 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "/opt/traefik/acme.json:/acme.json"
+      - "./acme.json:/acme.json"
 
   gpt-neo-api:
     build:
-      dockerfile: gpt-neo-api
       context: ./api
+      args:
+        - GPT_MODEL=${GPT_MODEL}
     container_name: "gpt-neo-api"
+    environment:
+      - GPT_MODEL
     ipc: "host"
     runtime: nvidia # remove/comment line for CPU-only inference
-    environment: -GPT_MODEL=EleutherAI/gpt-neo-2.7B # customize model if needed
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.gptneoapi.rule=Host(`api.example.com`)" # add your domain name for the API
+      - "traefik.http.routers.gptneoapi.rule=Host(`${API_DOMAIN}`)"
       - "traefik.http.routers.gptneoapi.tls=true"
       - "traefik.http.routers.gptneoapi.tls.certresolver=myresolver"
 
   gpt-neo-ui:
     build:
-      dockerfile: gpt-neo-ui
       context: ./ui
     container_name: "gpt-neo-ui"
-    environment: -API_DOMAIN=api.example.com # add your domain name for the API (to give UI access to the API)
+    environment:
+      - API_DOMAIN
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.gptneoui.rule=Host(`ui.example.com`)" # add your domain name for the UI
+      - "traefik.http.routers.gptneoui.rule=Host(`${UI_DOMAIN}`)"
       - "traefik.http.routers.gptneoui.tls=true"
       - "traefik.http.routers.gptneoui.tls.certresolver=myresolver"
